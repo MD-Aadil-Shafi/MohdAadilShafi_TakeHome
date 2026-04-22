@@ -11,6 +11,7 @@ import {
   TextIcon,
   ImageIcon,
   EraserIcon,
+  CommentIcon,
   laserPointerToolIcon,
   handIcon,
 } from "./icons";
@@ -103,6 +104,14 @@ export const SHAPES = [
     value: "eraser",
     key: KEYS.E,
     numericKey: KEYS["0"],
+    fillable: false,
+    toolbar: true,
+  },
+  {
+    icon: CommentIcon,
+    value: "comment",
+    key: KEYS.C,
+    numericKey: null,
     fillable: false,
     toolbar: true,
   },

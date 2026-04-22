@@ -2,6 +2,7 @@
 
 exports[`exportToSvg > with default arguments 1`] = `
 {
+  "activeCommentId": null,
   "activeEmbeddable": null,
   "activeLockedId": null,
   "activeTool": {
@@ -15,6 +16,7 @@ exports[`exportToSvg > with default arguments 1`] = `
   "bindingPreference": "enabled",
   "boxSelectionMode": "contain",
   "collaborators": Map {},
+  "comments": {},
   "contextMenu": null,
   "croppingElementId": null,
   "currentHoveredFontFamily": null,

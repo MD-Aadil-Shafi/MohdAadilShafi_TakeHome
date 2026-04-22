@@ -156,7 +156,8 @@ export type ToolType =
   | "frame"
   | "magicframe"
   | "embeddable"
-  | "laser";
+  | "laser"
+  | "comment";
 
 export type ElementOrToolType = ExcalidrawElementType | ToolType | "custom";
 
@@ -473,7 +474,19 @@ export interface AppState {
   // and also remove groupId from this map
   lockedMultiSelections: { [groupId: string]: true };
   bindMode: BindMode;
+  /** comments anchored to scene coordinates, keyed by id */
+  comments: Readonly<{ [id: string]: Comment }>;
+  /** id of the comment whose dialog is currently open; null = no dialog */
+  activeCommentId: string | null;
 }
+
+export type Comment = {
+  id: string;
+  /** scene-space coords */
+  x: number;
+  y: number;
+  text: string;
+};
 
 export type SearchMatch = {
   id: string;

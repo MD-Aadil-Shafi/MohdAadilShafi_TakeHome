@@ -92,6 +92,7 @@ import {
   AppEventBus,
   type EXPORT_IMAGE_TYPES,
   randomInteger,
+  randomId,
   CLASSES,
   Emitter,
   MINIMUM_ARROW_SIZE,
@@ -392,6 +393,7 @@ import {
   hideHyperlinkToolip,
   Hyperlink,
 } from "../components/hyperlink/Hyperlink";
+import { Comments } from "../components/Comments/Comments";
 
 import { Fonts } from "../fonts";
 import { editorJotaiStore, type WritableAtom } from "../editor-jotai";
@@ -2207,6 +2209,12 @@ class App extends React.Component<AppProps, AppState> {
                                 }
                               />
                             )}
+                          <Comments
+                            appState={this.state}
+                            onOpenComment={this.openCommentDialog}
+                            onSubmitComment={this.submitComment}
+                            onDeleteComment={this.deleteComment}
+                          />
                           {this.props.aiEnabled !== false &&
                             selectedElements.length === 1 &&
                             isMagicFrameElement(firstSelectedElement) && (
@@ -7507,6 +7515,11 @@ class App extends React.Component<AppProps, AppState> {
     this.maybeCleanupAfterMissingPointerUp(event.nativeEvent);
     this.maybeUnfollowRemoteUser();
 
+    if (this.state.activeTool.type === "comment") {
+      this.handleCommentToolPointerDown(scenePointerX, scenePointerY);
+      return;
+    }
+
     if (this.state.searchMatches) {
       this.setState((state) => {
         return {
@@ -7936,6 +7949,54 @@ class App extends React.Component<AppProps, AppState> {
       pointerDownState.eventListeners.onKeyUp = onKeyUp;
       pointerDownState.eventListeners.onKeyDown = onKeyDown;
     }
+  };
+
+  private handleCommentToolPointerDown = (sceneX: number, sceneY: number) => {
+    const id = randomId();
+    const comment = {
+      id,
+      x: sceneX,
+      y: sceneY,
+      text: "",
+    };
+    this.setState((state) => ({
+      comments: { ...state.comments, [id]: comment },
+      activeCommentId: id,
+    }));
+  };
+
+  public openCommentDialog = (id: string | null) => {
+    this.setState({ activeCommentId: id });
+  };
+
+  public submitComment = (id: string, text: string) => {
+    this.setState((state) => {
+      const existing = state.comments[id];
+      if (!existing) {
+        return null;
+      }
+      const trimmed = text.trim();
+      // delete empty comments so click-and-cancel doesn't leave stray pins
+      if (!trimmed) {
+        const { [id]: _, ...rest } = state.comments;
+        return { comments: rest, activeCommentId: null };
+      }
+      return {
+        comments: { ...state.comments, [id]: { ...existing, text: trimmed } },
+        activeCommentId: null,
+      };
+    });
+  };
+
+  public deleteComment = (id: string) => {
+    this.setState((state) => {
+      const { [id]: _, ...rest } = state.comments;
+      return {
+        comments: rest,
+        activeCommentId:
+          state.activeCommentId === id ? null : state.activeCommentId,
+      };
+    });
   };
 
   private handleCanvasPointerUp = (
